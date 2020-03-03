@@ -1,0 +1,473 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>ZIM - Code Creativity</title>
+    <script src="https://zimjs.org/cdn/1.2.4/createjs.js"></script>
+    <script src="https://zimjs.org/cdn/10.8.0/zim.js"></script>
+    <script src="https://zimjs.org/cdn/Box2dWeb-2.1.a.3.min.js"></script>
+    <script src="https://zimjs.org/cdn/physics_2.0.js"></script>
+    <script src="https://zimjs.org/cdn/game_2.2.js"></script>
+    <script>
+        // https://zimjs.com - JavaScript Canvas Framework - Code Creativity!
+
+        var scaling = "fit";
+        var width = 1920;
+        var height = 1080;
+        var color = "#AC1D41";
+        var outerColor = dark;
+        var assets = [
+            // steve's assets
+            "introBackground.png",
+            "introFlow.png",
+            "winBg.png",
+            "lostBg.png",
+            "winVirus.png",
+            "lostVirus.png",
+            //shan's assets
+            "https://i.postimg.cc/NMFVYrd6/player.png",
+            "https://i.postimg.cc/43MXtZHT/background.png",
+            "physicsback2.png",
+            "https://i.postimg.cc/qqz5Cjfw/rbc2.png",
+            "https://i.postimg.cc/44F6V1sh/rbc3.png",
+            "https://i.postimg.cc/90Sy2cJB/rbc4.png",
+            "https://i.postimg.cc/Pfy6tGDj/wbc1.png",
+            "https://i.postimg.cc/Dy30V9yP/antibody.png"
+
+
+            // {
+            //     font: "Klavika",
+            //     src: "KlavikaBold.otf"
+            // }
+        ];
+        var path = "assets/";
+
+        const frame = new zim.Frame(scaling, width, height, color, outerColor, assets, path);
+        frame.on("ready", function () {
+            console.log("frame ready");
+            var stage = frame.stage;
+            var stageW = frame.width;
+            var stageH = frame.height;
+
+            //intro
+            function makeIntro() {
+                var intro = new Container(stageW, stageH).addTo();
+                //background image
+                frame.asset("introBackground.png").sca(1).addTo(intro).center();
+                //introflow circles
+                var introFlow = frame.asset("introFlow.png").center()
+                var scroller = new Scroller({ backing: introFlow, horizontal: false });
+                var particles = new Emitter({
+                    obj: [
+                        frame.asset("introEmitter.png")
+                    ],
+                    random: { scale: { min: 0.1, max: 1 }, opacity: { min: 0.1, max: 1 } },
+                    num: 1,
+                    interval: 250, // default
+                    life: 10000,
+                    decayTime: 1000, // default
+                    gravity: 0,
+                    force: 1,
+                    cache: mobile(), // default
+                })
+                    .centerReg(stage)
+                    .sca(2)
+                    .alp(0.001);
+                // Title label 
+                var title = new Label({
+                    text: "Virus War",
+                    size: 100,
+                    color: "#fff",
+                    backgroundColor: "#AC1D41",
+                    paddingHorizontal: 80,
+                    paddingVertical: 60,
+                    corner: 50,
+                    fontOptions: "bold"
+                })
+                    .pos(0, 100, CENTER)
+                    // .ske(10)
+                    .alp(0)
+                    .animate({
+                        props: {
+                            alpha: 1
+                        },
+                        wait: 200
+                    })
+                    .addTo(intro)
+                    ;
+                //instruction
+                var instructions = new Label({
+                    text: "Help Mr.Fox to catch the letters on the fish to complete the word puzzel. \n Complete all 3 levels so Mr. Fox can sell his catched fish at his market. \n Be careful that you pick the right fish with the letter you need",
+                    lineHeight: 70,
+                    align: "center",
+                    size: 40,
+                    color: "white",
+                    backgroundColor: "#D2899B",
+                    paddingHorizontal: 40,
+                    paddingVertical: 40,
+                    corner: 20,
+                    fontOptions: "bold"
+                }).centerReg(intro).pos(null, 350, CENTER);
+
+                var label = new Label({
+                    text: "START",
+                    size: 48,
+                    color: "#AC1D41",
+                    fontOptions: "bold"
+                });
+                var startBtn = new Button({
+                    label: label,
+                    width: 400,
+                    height: 150,
+                    backgroundColor: "white",
+                    borderWidth: 0,
+                    rollBackgroundColor: "#AC1D41",
+                    corner: 50
+                })
+                    .centerReg(intro)
+                    .pos(null, 750, CENTER)
+                    .tap(function () {
+                        //asset("click.wav").play();
+                        intro
+                            .cache()
+                            .animate({
+                                props: {
+                                    y: -stageH
+                                },
+                                time: 800,
+                                call: physicsGame() // replace this with K's part
+                            });
+                        //asset("backgroundMusic1.mp3").play();
+                        //asset("sea.wav").play();                        
+                    });
+            }
+
+            // physics game (Shan)
+            physicsGame = () => {
+                // background setting
+                const physicsBack = new Container(stageW, stageW).centerReg();
+                const back = frame.asset("https://i.postimg.cc/43MXtZHT/background.png").centerReg(physicsBack).sca(2);
+                const back2 = frame.asset("physicsback2.png").centerReg(physicsBack).mov(0, -1200)
+                    .animate({
+                        props: { y: 1650 },
+                        time: 40000,
+                        loop: true,
+                        ease: "linear"
+                    });
+
+                // physics game Intro.
+                const gameIntro = new Label({
+                    text: "Get 12 red blood cells to dublicate! Use arrows to control.",
+                    size: 40,
+                    align: "center",
+                    color: black,
+                    backgroundColor: white,
+                    padding: 60,
+                    corner: 15
+
+                }).centerReg(physicsBack)
+                    .mov(0, -200)
+                    .sha()
+                    .animate({
+                        props: { alpha: 0 },
+                        time: 3500
+                    });
+
+                // game 
+                const physics = new Physics(0.7);
+                physics.remove(physics.borderTop);
+                physics.remove(physics.borderBottom);
+                //physics.debug();
+                //physics.pause(false);
+
+                const player = new Sprite(frame.asset("https://i.postimg.cc/NMFVYrd6/player.png"), 4, 1)
+                    .sca(.3)
+                    .sha()
+                    .run({ time: 1000, loop: true, rewind: true })
+                    .centerReg()
+                    .pos(0, 200, CENTER, BOTTOM)
+                    .addPhysics()
+                    .control("both", 20)
+                    .top()
+                    ;
+
+                const redCells = [
+                    "https://i.postimg.cc/qqz5Cjfw/rbc2.png",
+                    "https://i.postimg.cc/44F6V1sh/rbc3.png",
+                    "https://i.postimg.cc/90Sy2cJB/rbc4.png",
+                ];
+                const cells = new Container(stageW, stageH).centerReg();
+
+                const redCellGenerator = interval(2500, () => {
+                    let redCell = frame.asset(shuffle(redCells)[0])
+                        .clone()
+                        .centerReg(cells)
+                        .pos(rand(20, stageW - 20), -10)
+                        .sca(.8)
+                        .addPhysics()
+                        .spin(rand(0, 10) * .1)
+                        .contact(obj => {
+                            if (obj.type == "Sprite" && scorer.selectedIndex < 12) {
+                                redCell.removePhysics();
+                                redCell.removeFrom();
+                                scorer.selectedIndex += 1;
+                                endPhysicsGame();
+                            }
+                        });
+                    if (redCell.y > 1080) {
+                        redCell.removePhysics();
+                        redCell.removeFrom();
+                    }
+                });
+
+                var countAntibody = 0;
+                const antibodies = new Container(stageW, stageH).centerReg();
+                const whiteCellGenerator = interval(7000, () => {
+                    let whiteCell = frame.asset("https://i.postimg.cc/Pfy6tGDj/wbc1.png")
+                        .clone()
+                        .centerReg(cells)
+                        .sca(rand(7, 10) * .1)
+                        .pos(rand(100, stageW - 100), -180)
+                        .sha()
+                        .addPhysics()
+                        .spin(rand(0, 5) * .1)
+                        .contact(obj => {
+                            if (obj.type == "Sprite") {
+                                //zog(countAntibody, scorer.selectedIndex);
+                                if (countAntibody > 0) {
+                                    scorer.selectedIndex -= 6;
+                                    endPhysicsGame();
+                                    //zog(countAntibody, scorer.selectedIndex);
+                                }
+                            }
+                        })
+                        ;
+
+                    Ticker.add(() => {
+                        whiteCell.force(0, -5);
+                    });
+                    if (whiteCell.y > 1080) {
+                        whiteCell.removePhysics();
+                        whiteCell.removeFrom();
+                    }
+
+                    //antibody
+                    timeout(rand(7000, 8500), () => {
+                        loop(9, i => {
+                            let antibody = frame.asset("https://i.postimg.cc/Dy30V9yP/antibody.png")
+                                .clone()
+                                .centerReg(antibodies)
+                                .pos(whiteCell.x, whiteCell.y)
+                                .addPhysics()
+                                .impulse(rand(-18, 18), rand(-18, 18))
+                                .spin(rand(0, 10) * .1)
+                                .contact(obj => {
+                                    if (obj.type == "Sprite" && countAntibody <= 4) {
+                                        antibody.pos(player.x, player.y).sca(.35);
+                                        physics.join(player, antibody, null, null, null, null, "revolute");
+                                        countAntibody += 1;
+                                    }
+                                })
+                                ;
+                            if (antibody.y > 1080) {
+                                antibody.removePhysics();
+                                antibody.removeFrom();
+                            }
+                        });
+                    })
+                });
+
+                //score setting
+                const scoring = new Container(stageW, stageH).centerReg();
+                const scorer = new Indicator({ width: 360, num: 12, foregroundColor: "#5BD162", lightScale: .7, fill: true }).centerReg(scoring).pos(50, 50, RIGHT, TOP).rot(180);
+                scorer.selectedIndex = -1;
+                const timer = new Timer({ time: 90, colon: true, backgroundColor: white }).centerReg(scoring).pos(50, 50, LEFT, BOTTOM);
+                timeout(91000, () => {
+                    zog("game over");
+                    pause();
+                    timeout(1500, () => {
+                        lost();// steve's ending
+                        physicsBack.removeFrom();
+                        cells.removeFrom();
+                        scoring.removeFrom();
+                        player.removeFrom();
+                    });
+                });
+                // end the game
+                const pause = () => {
+                    physics.dispose();
+                    //physics.pause();
+                    redCellGenerator.clear();
+                    whiteCellGenerator.clear();
+                    timer.pause(true);
+                    antibodies.removeFrom();
+                    back2.pauseAnimate();
+                }
+                const endPhysicsGame = () => {
+                    if (scorer.selectedIndex < 0 || player.y > 1100) {
+                        zog("game over");
+                        pause();
+                        timeout(1500, () => {
+                            lost();// steve's ending
+                            physicsBack.removeFrom();
+                            cells.removeFrom();
+                            scoring.removeFrom();
+                            player.removeFrom();
+                        });
+                    }
+                    if (scorer.selectedIndex >= 11) {
+                        zog("virus win");
+                        const player2 = player.clone().pos(player.x, player.y);
+                        pause();
+                        timeout(1500, () => {
+                            win();// steve's ending
+                            physicsBack.removeFrom();
+                            cells.removeFrom();
+                            scoring.removeFrom();
+                            player.removeFrom();
+                            player2.removeFrom();
+                        });
+                    }
+                }
+            }
+
+            //win
+            function win() {
+                zog("finsih")
+                var ending1 = new Container(stageW, stageH).addTo(stage);
+                varendingBackground = asset("winBg.png").sca(1).addTo(ending1).centerReg(ending1);
+                var instructions = new Label({
+                    text: "invasion succeeded!",
+                    // lineHeight: 70,
+                    align: "center",
+                    size: 70,
+                    color: "#2FEEF5",
+                    fontOptions: "bold"
+                }).centerReg(ending1).alp().pos(null, 400, CENTER);
+                var winV = asset("winVirus.png")
+                    .sca()
+                    .addTo(ending1)
+                    .centerReg(ending1)
+                    .wiggle();;
+                var label;
+                label = new Label({
+                    text: "RESTART",
+                    size: 48,
+                    color: white,
+                    fontOptions: "bold",
+                    // mouse:"pointer"
+                });
+
+                // label.on("mouseover", function (e) {
+                //     //     asset("click.wav").play();
+                // });
+
+                var button;
+                button = new Button({
+                    label: label,
+                    width: 400,
+                    height: 100,
+                    backgroundColor: "#AC1D41",
+                    borderWidth: 0,
+                    rollBackgroundColor: "#49080F",
+                    corner: 20,
+                })
+                    .centerReg(ending1)
+                    .pos(null, 800, CENTER)
+                    .tap(function () {
+                        // asset("click.wav").play();
+                        ending1
+                            .cache()
+                            .animate({
+                                props: {
+                                    y: -stageH
+                                },
+                                time: 800,
+                                call: ()=>{
+                                    zgo("index.html");
+                                }
+                            });
+                        stage.update();
+                    })
+                stage.update();
+            }
+
+            //lose
+            function lost() {
+                zog("finsih")
+                var ending = new Container(stageW, stageH).addTo(stage);
+                varendingBackground = asset("lostBg.png").sca(1).addTo(ending).centerReg(ending);
+
+                var instructions = new Label({
+                    text: "Invasion Failed!",
+                    // lineHeight: 70,
+                    align: "center",
+                    size: 70,
+                    color: black,
+                    fontOptions: "bold"
+                }).centerReg(ending).alp().pos(null, 200, CENTER);
+
+
+                var lostV = asset("lostVirus.png")
+                    .sca()
+                    .addTo(ending)
+                    .centerReg(ending)
+                    .wiggle();;
+
+
+                var label;
+                label = new Label({
+                    text: "RESTART",
+                    size: 48,
+                    color: white,
+                    fontOptions: "bold",
+                    // mouse:"pointer"
+                });
+
+                // label.on("mouseover", function (e) {
+                //     //     asset("click.wav").play();              
+                // });
+
+                var button;
+
+                button = new Button({
+                    label: label,
+                    width: 400,
+                    height: 100,
+                    backgroundColor: "#AC1D41",
+                    borderWidth: 0,
+                    rollBackgroundColor: "#49080F",
+                    corner: 20,
+
+                })
+                    .centerReg(ending)
+                    .pos(null, 800, CENTER)
+                    .tap(function () {
+                        // asset("click.wav").play();
+                        ending
+                            .cache()
+                            .animate({
+                                props: {
+                                    y: -stageH
+                                },
+                                time: 800,
+                                call: ()=>{
+                                    zgo("index.html");
+                                }
+                            });
+                    })
+            }
+
+            makeIntro(frame);
+
+            stage.update();
+        }); // end of ready
+
+    </script>
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+</head>
+
+<body></body>
+
+</html>
