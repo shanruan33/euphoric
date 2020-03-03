@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>ZIM - Code Creativity</title>
+    <title>Euphoric</title>
     <script src="https://zimjs.org/cdn/1.2.4/createjs.js"></script>
     <script src="https://zimjs.org/cdn/10.8.0/zim.js"></script>
     <script src="https://zimjs.org/cdn/Box2dWeb-2.1.a.3.min.js"></script>
@@ -20,11 +20,19 @@
         var assets = [
             // steve's assets
             "introBackground.png",
+            "introEmitter.png",
             "introFlow.png",
             "winBg.png",
             "lostBg.png",
             "winVirus.png",
             "lostVirus.png",
+            "underwater.wav",
+            "backgroundMusic.mp3",
+            "click.wav",
+            "bite.mp3",
+            "pop.wav",
+            "gas.mp3",
+
             //shan's assets
             "https://i.postimg.cc/NMFVYrd6/player.png",
             "https://i.postimg.cc/43MXtZHT/background.png",
@@ -71,12 +79,12 @@
                     force: 1,
                     cache: mobile(), // default
                 })
-                    .centerReg(stage)
+                    .centerReg(intro)
                     .sca(2)
                     .alp(0.001);
                 // Title label 
                 var title = new Label({
-                    text: "Virus War",
+                    text: "Euphoric",
                     size: 100,
                     color: "#fff",
                     backgroundColor: "#AC1D41",
@@ -122,13 +130,17 @@
                     height: 150,
                     backgroundColor: "white",
                     borderWidth: 0,
-                    rollBackgroundColor: "#AC1D41",
+                    rollColor: "#AC1D41",
+                    rollBackgroundColor: "#E1C7CB",
                     corner: 50
                 })
                     .centerReg(intro)
                     .pos(null, 750, CENTER)
                     .tap(function () {
-                        //asset("click.wav").play();
+                        asset("click.wav").play();
+                        asset("backgroundMusic.mp3").play();
+                        asset("underwater.wav").play();
+                        
                         intro
                             .cache()
                             .animate({
@@ -136,7 +148,8 @@
                                     y: -stageH
                                 },
                                 time: 800,
-                                call: physicsGame() // replace this with K's part
+                                call: physicsGame()
+                                // replace this with K's part
                             });
                         //asset("backgroundMusic1.mp3").play();
                         //asset("sea.wav").play();                        
@@ -145,6 +158,7 @@
 
             // physics game (Shan)
             physicsGame = () => {
+
                 // background setting
                 const physicsBack = new Container(stageW, stageW).centerReg();
                 const back = frame.asset("https://i.postimg.cc/43MXtZHT/background.png").centerReg(physicsBack).sca(2);
@@ -178,7 +192,7 @@
                 const physics = new Physics(0.7);
                 physics.remove(physics.borderTop);
                 physics.remove(physics.borderBottom);
-                //physics.debug();
+                // physics.debug();
                 //physics.pause(false);
 
                 const player = new Sprite(frame.asset("https://i.postimg.cc/NMFVYrd6/player.png"), 4, 1)
@@ -209,8 +223,10 @@
                         .spin(rand(0, 10) * .1)
                         .contact(obj => {
                             if (obj.type == "Sprite" && scorer.selectedIndex < 12) {
+                               
                                 redCell.removePhysics();
                                 redCell.removeFrom();
+                                asset("bite.mp3").play();
                                 scorer.selectedIndex += 1;
                                 endPhysicsGame();
                             }
@@ -254,6 +270,7 @@
 
                     //antibody
                     timeout(rand(7000, 8500), () => {
+                        asset("gas.mp3").play();
                         loop(9, i => {
                             let antibody = frame.asset("https://i.postimg.cc/Dy30V9yP/antibody.png")
                                 .clone()
@@ -348,8 +365,9 @@
                 var winV = asset("winVirus.png")
                     .sca()
                     .addTo(ending1)
-                    .centerReg(ending1)
-                    .wiggle();;
+                    .centerReg(ending1);
+                
+                winV.wiggle("y", winV.y, 10, 30, 300, 2000);
                 var label;
                 label = new Label({
                     text: "RESTART",
@@ -376,7 +394,7 @@
                     .centerReg(ending1)
                     .pos(null, 800, CENTER)
                     .tap(function () {
-                        // asset("click.wav").play();
+                        asset("click.wav").play();
                         ending1
                             .cache()
                             .animate({
@@ -384,7 +402,7 @@
                                     y: -stageH
                                 },
                                 time: 800,
-                                call: ()=>{
+                                call: () => {
                                     zgo("index.html");
                                 }
                             });
@@ -412,8 +430,10 @@
                 var lostV = asset("lostVirus.png")
                     .sca()
                     .addTo(ending)
-                    .centerReg(ending)
-                    .wiggle();;
+                    .centerReg(ending);
+                
+                lostV.wiggle("y", lostV.y, 10, 30, 300, 2000);
+
 
 
                 var label;
@@ -444,15 +464,18 @@
                     .centerReg(ending)
                     .pos(null, 800, CENTER)
                     .tap(function () {
-                        // asset("click.wav").play();
+                        asset("click.wav").play();
                         ending
                             .cache()
                             .animate({
                                 props: {
-                                    y: -stageH
+                                    // y: -stageH
+                                    alpha: 0
+
                                 },
                                 time: 800,
-                                call: ()=>{
+                                // wait:1000,
+                                call: () => {
                                     zgo("index.html");
                                 }
                             });
