@@ -9,6 +9,7 @@
     <script src="https://zimjs.org/cdn/Box2dWeb-2.1.a.3.min.js"></script>
     <script src="https://zimjs.org/cdn/physics_2.0.js"></script>
     <script src="https://zimjs.org/cdn/game_2.2.js"></script>
+
     <script>
         // https://zimjs.com - JavaScript Canvas Framework - Code Creativity!
 
@@ -41,13 +42,13 @@
             "https://i.postimg.cc/44F6V1sh/rbc3.png",
             "https://i.postimg.cc/90Sy2cJB/rbc4.png",
             "https://i.postimg.cc/Pfy6tGDj/wbc1.png",
-            "https://i.postimg.cc/Dy30V9yP/antibody.png"
+            "https://i.postimg.cc/Dy30V9yP/antibody.png",
 
 
-            // {
-            //     font: "Klavika",
-            //     src: "KlavikaBold.otf"
-            // }
+            {
+                font: "Lacquer",
+                src: "https://fonts.googleapis.com/css?family=Lacquer&display=swap"
+            }
         ];
         var path = "assets/";
 
@@ -66,6 +67,8 @@
                 //introflow circles
                 var introFlow = frame.asset("introFlow.png").center()
                 var scroller = new Scroller({ backing: introFlow, horizontal: false });
+
+                //emitter
                 var particles = new Emitter({
                     obj: [
                         frame.asset("introEmitter.png")
@@ -81,9 +84,13 @@
                 })
                     .centerReg(intro)
                     .sca(2)
-                    .alp(0.001);
+                    .alp(0.001)
+                    
+
+
                 // Title label 
                 var title = new Label({
+                	font: "Lacquer",
                     text: "Euphoric",
                     size: 100,
                     color: "#fff",
@@ -91,7 +98,8 @@
                     paddingHorizontal: 80,
                     paddingVertical: 60,
                     corner: 50,
-                    fontOptions: "bold"
+                    fontOptions: "bold",
+                    gradient:.3
                 })
                     .pos(0, 100, CENTER)
                     // .ske(10)
@@ -106,7 +114,7 @@
                     ;
                 //instruction
                 var instructions = new Label({
-                    text: "Help Mr.Fox to catch the letters on the fish to complete the word puzzel. \n Complete all 3 levels so Mr. Fox can sell his catched fish at his market. \n Be careful that you pick the right fish with the letter you need",
+                    text: "You are a bactria that invading human body \n You have consume 12 red blood cells to win the game! \n Try to AVOID antibodies as it will slow you down.\n if you got attched with antibody, \nAVOID White Blood Cells as you are now INVOLUNTARY to white blood cells",
                     lineHeight: 70,
                     align: "center",
                     size: 40,
@@ -132,10 +140,11 @@
                     borderWidth: 0,
                     rollColor: "#AC1D41",
                     rollBackgroundColor: "#E1C7CB",
-                    corner: 50
+                    corner: 50,
+
                 })
                     .centerReg(intro)
-                    .pos(null, 750, CENTER)
+                    .pos(null, 870, CENTER)
                     .tap(function () {
                         asset("click.wav").play();
                         asset("backgroundMusic.mp3").play();
@@ -172,7 +181,7 @@
 
                 // physics game Intro.
                 const gameIntro = new Label({
-                    text: "Get 12 red blood cells to dublicate! Use arrows to control.",
+                    text: "Consume 12 red blood cells to win the game! You have 1:30s, the game STARTS NOW!",
                     size: 40,
                     align: "center",
                     color: black,
@@ -185,7 +194,7 @@
                     .sha()
                     .animate({
                         props: { alpha: 0 },
-                        time: 3500
+                        time: 5000
                     });
 
                 // game 
@@ -360,7 +369,8 @@
                     align: "center",
                     size: 70,
                     color: "#2FEEF5",
-                    fontOptions: "bold"
+                    fontOptions: "bold",
+                    font: "Lacquer"
                 }).centerReg(ending1).alp().pos(null, 400, CENTER);
                 var winV = asset("winVirus.png")
                     .sca()
@@ -419,6 +429,7 @@
 
                 var instructions = new Label({
                     text: "Invasion Failed!",
+                    font: "Lacquer",
                     // lineHeight: 70,
                     align: "center",
                     size: 70,
